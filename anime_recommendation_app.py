@@ -53,9 +53,8 @@ def load_data():
 # Function to get recommendations
 def get_recommendations_by_name(anime_name, suggest_amount=10):
     try:
-        st.write(f"🔍 Searching for: {anime_name}")  # Debug print
+        st.write(f"🔍 Searching for: {anime_name}")
 
-        # Ensure anime list is loaded
         if anime_list.empty:
             st.error("⚠️ Error: Anime dataset is empty!")
             return "Anime dataset is empty."
@@ -77,7 +76,6 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
         anime_id = anime_id[0]
         st.write(f"🆔 Anime ID: {anime_id}")
 
-        # Ensure similarity matrix is loaded
         if anime_similarity_df.empty:
             st.error("⚠️ Error: Anime similarity matrix is empty!")
             return "Anime similarity matrix is empty."
@@ -86,8 +84,14 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
             st.error(f"⚠️ Anime '{anime_title}' does not exist in the similarity matrix.")
             return f"Anime '{anime_title}' does not exist in the similarity matrix."
 
+        # Debugging: Check data types before computing similarity
+        st.write(f"📊 Checking data types: anime_id={type(anime_id)}, similarity matrix index={anime_similarity_df.index.dtype}")
+
+        # Convert anime_id to match index type
+        anime_id = str(anime_id) if anime_similarity_df.index.dtype == 'object' else int(anime_id)
+
         # Get similar anime
-        sim_scores = anime_similarity_df[anime_id].sort_values(ascending=False)[1:suggest_amount+1]
+        sim_scores = anime_similarity_df.loc[anime_id].sort_values(ascending=False)[1:suggest_amount+1]
         st.write("📊 Similarity scores calculated!")
 
         recommended_anime = anime_list[anime_list['anime_id'].isin(sim_scores.index)][['Name', 'Score', 'Genres']]
@@ -96,8 +100,8 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
         return anime_title, recommended_anime
 
     except Exception as e:
-        st.error(f"⚠️ An error occurred: {e}")
-        return f"Error: {e}"
+        st.error(f"⚠️ Full Error: {repr(e)}")
+        return f"Error: {repr(e)}"
 
 
 # Streamlit App
