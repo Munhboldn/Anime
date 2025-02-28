@@ -1,0 +1,8 @@
+streamlit
+pandas
+numpy
+gdown
+scipy
+scikit-learn
+fuzzywuzzy
+python-Levenshtein
