@@ -61,11 +61,14 @@ with st.sidebar:
 def load_anime_data():
     try:
         anime_file_path = "anime-dataset-2023.csv"
-        return pd.read_csv(anime_file_path, 
-                          low_memory=False, 
-                          usecols=['anime_id', 'Name', 'Score', 'Genres', 'Type', 'Episodes', 'Aired', 
-                                   'Producers', 'Licensors', 'Studios', 'Source', 'Synopsis', 'Rating', 'Popularity']
-                          )
+        df = pd.read_csv(anime_file_path, 
+                         low_memory=False, 
+                         usecols=['anime_id', 'Name', 'Score', 'Genres', 'Type', 'Episodes', 'Aired', 
+                                 'Producers', 'Licensors', 'Studios', 'Source', 'Synopsis', 'Rating', 'Popularity']
+                        )
+        # Convert Score column to numeric right when loading
+        df['Score'] = pd.to_numeric(df['Score'], errors='coerce')
+        return df
     except Exception as e:
         st.error(f"⚠️ Failed to load anime dataset: {e}")
         return None
@@ -164,7 +167,8 @@ def get_recommendations_by_name(anime_name, suggest_amount=10, min_score=7.0):
         sim_scores = anime_similarity_df.loc[anime_id].sort_values(ascending=False)[1:suggest_amount*2+1]
         recommended_anime = anime_list[anime_list['anime_id'].isin(sim_scores.index)]
         
-        # Filter by minimum score
+        # Convert Score to numeric and filter by minimum score
+        recommended_anime['Score'] = pd.to_numeric(recommended_anime['Score'], errors='coerce')
         recommended_anime = recommended_anime[recommended_anime['Score'] >= min_score]
         
         # Sort by similarity score and then by rating
