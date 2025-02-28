@@ -50,7 +50,7 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Display app title
+#  app title
 st.markdown("<h1 class='main-header'>📺 Anime Recommendation System</h1>", unsafe_allow_html=True)
 
 # Add a sidebar for additional features
@@ -195,7 +195,7 @@ def get_recommendations_by_name(anime_name, suggest_amount=10, min_score=7.0):
 col1, col2 = st.columns([2, 3])
 
 with col1:
-    anime_name_input = st.text_input("Enter an anime name:", placeholder="e.g. Naruto, Attack on Titan, Death Note")
+    anime_name_input = st.text_input("Enter an anime name:", placeholder="e.g. Naruto, Shingeki no Kyojin, Death Note")
     
     # Add some example buttons for popular anime
     st.write("Or try one of these popular anime:")
@@ -210,8 +210,8 @@ with col1:
             anime_name_input = "One Piece"
             
     with example_col3:
-        if st.button("Attack on Titan"):
-            anime_name_input = "Attack on Titan"
+        if st.button("shingeki no kyojin"):
+            anime_name_input = "shingeki no kyojin"
 
 with col2:
     search_button = st.button("🔍 Get Recommendations", type="primary", use_container_width=True)
@@ -255,7 +255,7 @@ if search_button or (anime_name_input and 'last_search' not in st.session_state)
                 # Display recommendations
                 st.markdown(f"<h2 class='subheader'>Top {len(recommendations)} Recommendations</h2>", unsafe_allow_html=True)
                 
-                # Convert genres to lists for better display
+                # Convert genres to lists 
                 recommendations['Genres'] = recommendations['Genres'].apply(lambda x: x.split(', ') if isinstance(x, str) else x)
                 
                 # Display each recommendation in a card-like format
@@ -277,7 +277,6 @@ if search_button or (anime_name_input and 'last_search' not in st.session_state)
 # Footer section
 st.divider()
 
-# Create a clean, centered footer with multiple links
 footer_html = """
 <div style="text-align: center; padding: 10px 0;">
     <p style="font-size: 14px; color: #666;">
