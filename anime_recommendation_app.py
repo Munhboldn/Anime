@@ -52,7 +52,7 @@ def main():
     
     if st.button("Get Recommendations", use_container_width=True):
         if anime_name_input:
-            result = get_recommendations_by_name(anime_name_input)
+            result = get_recommendations_by_name(anime_name_input)  # FIXED FUNCTION CALL
             if isinstance(result, tuple):
                 anime_title, recommendations = result
                 st.subheader(f"Recommended Anime for: {anime_title}")
