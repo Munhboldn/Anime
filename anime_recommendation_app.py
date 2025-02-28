@@ -70,27 +70,32 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
 # Streamlit App
 def main():
     st.set_page_config(page_title="Anime Recommender", layout="wide")
-    
-    st.markdown("<h1 style='text-align: center;'>🎬 Anime Recommendation System</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Find similar anime based on your favorite one!</p>", unsafe_allow_html=True)
-    
-    anime_name_input = st.text_input("Enter an anime name:", placeholder="e.g., Naruto")
 
-    if st.button("Get Recommendations", use_container_width=True):
-        if not anime_name_input:
-            st.warning("⚠️ Please enter an anime name.")
-            return
-        
-        with st.spinner("🔍 Searching for recommendations..."):
-            result = get_recommendations_by_name(anime_name_input)
+    try:
+        st.markdown("<h1 style='text-align: center;'>🎬 Anime Recommendation System</h1>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center;'>Find similar anime based on user ratings!</p>", unsafe_allow_html=True)
 
-        if isinstance(result, tuple):
-            anime_title, recommendations = result
-            st.subheader(f"🎯 Recommendations for: **{anime_title}**")
-            st.dataframe(recommendations)
-        else:
-            st.error(result)
+        anime_name_input = st.text_input("Enter an anime name:", placeholder="e.g., Naruto")
 
-# Run the app
+        if st.button("Get Recommendations", use_container_width=True):
+            if not anime_name_input:
+                st.warning("⚠️ Please enter an anime name.")
+                return
+
+            with st.spinner("🔍 Searching for recommendations..."):
+                result = get_recommendations_by_name(anime_name_input)
+
+            if isinstance(result, tuple):
+                anime_title, recommendations = result
+                st.subheader(f"🎯 Recommendations for: **{anime_title}**")
+                st.dataframe(recommendations)
+            else:
+                st.error(result)
+
+    except Exception as e:
+        st.error(f"⚠️ An unexpected error occurred: {repr(e)}")
+        print(f"❌ Full Error: {repr(e)}")  # Logs error in the terminal
+
 if __name__ == "__main__":
     main()
+
