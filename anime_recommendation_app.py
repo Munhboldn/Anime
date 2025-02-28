@@ -274,10 +274,18 @@ if search_button or (anime_name_input and 'last_search' not in st.session_state)
     except Exception as e:
         st.error(f"⚠️ Application Error: {repr(e)}")
 
-# Add footer
+# Footer section
 st.divider()
-st.markdown("""
-<div style='text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;'>
-    Anime Recommendation System | Built with Streamlit | Data source: MyAnimeList
+
+# Create a clean, centered footer with multiple links
+footer_html = """
+<div style="text-align: center; padding: 10px 0;">
+    <p style="font-size: 14px; color: #666;">
+        Data Source: <a href="https://www.kaggle.com/datasets/dbdmobile/myanimelist-dataset" target="_blank">MyAnimeList Dataset (Kaggle)</a> 
+        | Created by <a href="https://github.com/Munhboldn" target="_blank">Munkhbold Nyamdorj</a>
+    </p>
 </div>
-""", unsafe_allow_html=True)
+"""
+
+st.markdown(footer_html, unsafe_allow_html=True)
+
