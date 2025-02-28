@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
-import re
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import process
@@ -9,8 +8,14 @@ import os
 import gdown
 from config import USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH
 
+# Download the large file if it doesn't exist
 if not os.path.exists(USERS_SCORE_FILE_PATH):
-    gdown.download(USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH, quiet=False)
+    try:
+        gdown.download(USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH, quiet=False)
+        st.success("File downloaded successfully!")
+    except Exception as e:
+        st.error(f"Failed to download the file: {e}")
+        st.stop()
 
 st.title("Anime Recommendation System")
 
@@ -30,7 +35,8 @@ def load_anime_data():
 # Cache the user ratings dataset loading and preprocessing
 @st.cache_data
 def load_user_data():
-    user_rec = pd.read_csv("users-score-2023.csv", usecols=['anime_id', 'user_id', 'rating'])
+    # Use the USERS_SCORE_FILE_PATH variable
+    user_rec = pd.read_csv(USERS_SCORE_FILE_PATH, usecols=['anime_id', 'user_id', 'rating'])
     
     # Convert IDs to numeric and drop invalid rows
     user_rec['user_id'] = pd.to_numeric(user_rec['user_id'], errors='coerce')
