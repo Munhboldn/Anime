@@ -5,6 +5,12 @@ import re
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import process
+import os
+import gdown
+from config import USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH
+
+if not os.path.exists(USERS_SCORE_FILE_PATH):
+    gdown.download(USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH, quiet=False)
 
 st.title("Anime Recommendation System")
 
