@@ -51,47 +51,41 @@ def load_data():
     return anime_list, user_rec, anime_similarity_cosine
 
 # Function to get recommendations
-def get_recommendations_by_name(anime_name, anime_list, user_rec, anime_similarity_cosine, suggest_amount=10):
-    # Fuzzy match the anime name
-    matches = process.extractBests(anime_name, anime_list['Name'], limit=5)
-    
-    if not matches:
-        return f"No anime found with name similar to '{anime_name}'", None
-    
-    # If multiple matches, let the user choose
-    if len(matches) > 1:
-        st.write("Multiple matches found. Please select the correct one:")
-        selected_match = st.selectbox("Select Anime", [match[0] for match in matches])
-        anime_title = selected_match
-    else:
-        anime_title = matches[0][0]
-    
-    # Get the anime ID
-    anime_id = anime_list.loc[anime_list['Name'] == anime_title, 'anime_id'].values[0]
-    
-    # Check if the anime ID is in the similarity matrix
-    if anime_id not in user_rec['anime_id'].values:
-        return f"Anime '{anime_title}' not found in similarity matrix.", None
-    
-    # Get the index of the anime in the similarity matrix
-    anime_index = user_rec['anime_id'].astype('category').cat.categories.get_loc(anime_id)
-    
-    # Extract similarity scores for the anime
-    sim_scores = anime_similarity_cosine[anime_index].toarray().flatten()
-    
-    # Get the indices of the top similar anime (excluding itself)
-    top_indices = np.argsort(sim_scores)[-suggest_amount-1:-1][::-1]
-    
-    # Get the anime IDs of the top similar anime
-    top_anime_ids = user_rec['anime_id'].astype('category').cat.categories[top_indices]
-    
-    # Get recommended anime details
-    recommended_anime = anime_list[anime_list['anime_id'].isin(top_anime_ids)][['Name', 'Score', 'Genres']]
-    
-    # Sort by score (descending)
-    recommended_anime = recommended_anime.sort_values(by='Score', ascending=False)
-    
-    return anime_title, recommended_anime
+def get_recommendations_by_name(anime_name, suggest_amount=10):
+    try:
+        # Use fuzzy matching to find the best match
+        best_match = process.extractOne(anime_name, anime_list['Name'])
+        
+        if best_match is None or best_match[1] < 60:  # Ensure a strong match
+            return f"No anime found with a name similar to '{anime_name}'"
+        
+        anime_title = best_match[0]
+        anime_id = anime_list.loc[anime_list['Name'] == anime_title, 'anime_id'].values
+
+        if len(anime_id) == 0:
+            return f"Anime '{anime_title}' not found in dataset."
+
+        anime_id = anime_id[0]
+
+        if anime_id not in anime_similarity_df.index:
+            return f"Anime '{anime_title}' does not exist in the similarity matrix."
+
+        # Get similar anime
+        sim_scores = anime_similarity_df[anime_id].sort_values(ascending=False)[1:suggest_amount+1]
+
+        # Get recommended anime details
+        recommended_anime = anime_list[anime_list['anime_id'].isin(sim_scores.index)][['Name', 'Score', 'Genres']]
+
+        # Sort by score (descending)
+        recommended_anime = recommended_anime.sort_values(by='Score', ascending=False)
+
+        return anime_title, recommended_anime
+
+    except Exception as e:
+        st.error(f"⚠️ An error occurred: {e}")  # Show error in Streamlit
+        print(f"Error in recommendation: {e}")  # Print error in logs
+        return "An unexpected error occurred while generating recommendations."
+
 
 # Streamlit App
 def main():
