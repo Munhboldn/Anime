@@ -1,23 +1,36 @@
+import os
 import streamlit as st
 import pandas as pd
-import numpy as np
-import os
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import process
+import gdown
 
 st.title("Anime Recommendation System")
+
+# Conditional download: download file if it doesn't exist locally
+def download_user_file():
+    file_id = "1eAZUQLfzxBtWqLr9qx845NRJTw2kM0Pn"
+    url = f"https://drive.google.com/uc?id={file_id}"
+    output = "users-score-2023.csv"
+    if not os.path.exists(output):
+        st.info("Downloading users-score-2023.csv from Google Drive. This may take a while...")
+        gdown.download(url, output, quiet=False)
+        st.success(f"File downloaded and saved as {output}")
+    else:
+        st.info(f"File {output} already exists.")
+
+download_user_file()
 
 ## ------------------------------
 ## Data Loading and Caching
 ## ------------------------------
 
-# Cache the anime dataset loading
 @st.cache_data
 def load_anime_data():
     file_path = "anime-dataset-2023.csv"
     if not os.path.exists(file_path):
-        st.error(f"File not found: {file_path}")
+        st.error(f"File not found: {file_path}. Please ensure the file is available.")
         return None
     return pd.read_csv(
         file_path, 
@@ -28,12 +41,11 @@ def load_anime_data():
         ]
     )
 
-# Cache the user ratings dataset loading and preprocessing
 @st.cache_data
 def load_user_data():
     file_path = "users-score-2023.csv"
     if not os.path.exists(file_path):
-        st.error(f"File not found: {file_path}. Please run download_file.py to download it.")
+        st.error(f"File not found: {file_path}.")
         return None
     user_rec = pd.read_csv(file_path, usecols=['anime_id', 'user_id', 'rating'])
     
@@ -52,14 +64,13 @@ def load_user_data():
     
     return user_rec
 
-# Cache the similarity matrix computation
 @st.cache_resource
 def build_similarity_matrix(user_rec):
-    # Convert user and anime IDs to category codes for efficient memory usage
+    # Convert user and anime IDs to category codes for memory efficiency
     user_rec['user_code'] = user_rec['user_id'].astype('category').cat.codes
     user_rec['anime_code'] = user_rec['anime_id'].astype('category').cat.codes
     
-    # Create the sparse matrix
+    # Create sparse matrix
     sparse_matrix = csr_matrix(
         (user_rec['rating'], (user_rec['user_code'], user_rec['anime_code']))
     )
@@ -67,7 +78,7 @@ def build_similarity_matrix(user_rec):
     # Compute cosine similarity between anime (transpose the matrix)
     anime_similarity_cosine = cosine_similarity(sparse_matrix.T, dense_output=False)
     
-    # Build a DataFrame with anime IDs as both the index and columns
+    # Build a DataFrame with anime IDs as index and columns
     similarity_df = pd.DataFrame(
         anime_similarity_cosine.toarray(),
         index=user_rec['anime_id'].astype('category').cat.categories,
@@ -80,9 +91,9 @@ anime_list = load_anime_data()
 user_rec = load_user_data()
 
 if anime_list is None or user_rec is None:
-    st.stop()  # Stop if either file is missing
+    st.stop()  # Stop app if required files are missing
 
-# Build the similarity matrix
+# Build similarity matrix
 anime_similarity_df = build_similarity_matrix(user_rec)
 
 ## ------------------------------
@@ -90,7 +101,7 @@ anime_similarity_df = build_similarity_matrix(user_rec)
 ## ------------------------------
 
 def get_recommendations_by_name(anime_name, suggest_amount=10):
-    # Use fuzzy matching to find the best match in the anime list
+    # Fuzzy match the input anime name to the closest name in anime_list
     best_match = process.extractOne(anime_name, anime_list['Name'])
     if best_match is None:
         return f"No anime found with name similar to '{anime_name}'"
@@ -101,12 +112,12 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
     if anime_id not in anime_similarity_df.columns:
         return f"Anime '{anime_title}' not found in similarity matrix."
     
-    # Retrieve similarity scores and select the top suggestions (skip self-match)
+    # Retrieve similarity scores and pick top recommendations (skip self-match)
     sim_scores = anime_similarity_df[anime_id].sort_values(ascending=False)[1:suggest_amount+1]
     
-    # Get details for the recommended anime
+    # Get recommended anime details from anime_list
     recommended_anime = anime_list[anime_list['anime_id'].isin(sim_scores.index)][['Name', 'Score', 'Genres']]
-    # Sort recommendations by score (descending)
+    # Sort recommendations by Score in descending order
     recommended_anime = recommended_anime.sort_values(by='Score', ascending=False)
     
     return anime_title, recommended_anime
