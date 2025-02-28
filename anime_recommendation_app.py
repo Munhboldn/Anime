@@ -108,28 +108,30 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
 def main():
     st.title("Anime Recommendation System")
     
-    # Load data
-    anime_list, user_rec, anime_similarity_cosine = load_data()
-    
-    # User input
     anime_name_input = st.text_input("Enter an anime name:")
-    suggest_amount = st.slider("Number of recommendations", min_value=1, max_value=20, value=10)
-    
+
     if st.button("Get Recommendations"):
-        if anime_name_input:
-            with st.spinner("Fetching recommendations..."):
-                result = get_recommendations_by_name(
-                    anime_name_input, anime_list, user_rec, anime_similarity_cosine, suggest_amount
-                )
+        try:
+            if not anime_name_input:
+                st.warning("⚠️ Please enter an anime name.")
+                return
             
-            if result[1] is not None:
+            st.write(f"🔍 Looking for recommendations for: {anime_name_input}")
+
+            result = get_recommendations_by_name(anime_name_input)
+
+            if isinstance(result, tuple):  # If function returns valid recommendations
                 anime_title, recommendations = result
                 st.subheader(f"Recommendations for: {anime_title}")
                 st.dataframe(recommendations)
             else:
-                st.warning(result[0])
-        else:
-            st.warning("Please enter an anime name.")
+                st.error(result)  # Display the error message returned by the function
+            
+        except Exception as e:
+            st.error(f"⚠️ Full Error: {repr(e)}")
+            print(f"❌ Full Error: {repr(e)}")  # Will also print error in logs
 
+# Run the app
 if __name__ == "__main__":
     main()
+
