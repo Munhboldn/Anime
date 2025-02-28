@@ -22,8 +22,8 @@ except Exception as e:
     anime_list = None  # Prevents further crashes
 
 # Load user rating dataset (split files from GitHub)
-file_url1 = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/users-score-part1.parquet"
-file_url2 = "https://raw.githubusercontent.com/YOUR_GITHUB_USERNAME/YOUR_REPO_NAME/main/users-score-part2.parquet"
+file_url1 = "https://raw.githubusercontent.com/Munhboldn/Anime/main/users-score-part1.parquet"
+file_url2 = "https://raw.githubusercontent.com/Munhboldn/Anime/main/users-score-part2.parquet"
 
 try:
     user_rec1 = pd.read_parquet(file_url1)
