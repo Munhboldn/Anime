@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import numpy as np
+import re
 from scipy.sparse import csr_matrix
 from sklearn.metrics.pairwise import cosine_similarity
 from fuzzywuzzy import process
+import os
 
 # Ensure dataset loads correctly
 anime_file_path = "anime-dataset-2023.csv"
@@ -68,6 +70,8 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
         if anime_list is None or anime_list.empty:
             return "⚠️ Anime dataset is missing or empty!"
 
+        st.write(f"🔍 Searching for: {anime_name}")
+
         best_match = process.extractOne(anime_name, anime_list['Name'])
         if best_match is None or best_match[1] < 60:
             return f"No anime found with a name similar to '{anime_name}'"
@@ -99,27 +103,30 @@ def get_recommendations_by_name(anime_name, suggest_amount=10):
 
 # Streamlit App
 def main():
-    st.set_page_config(page_title="Anime Recommender", layout="wide")
+    st.title("Anime Recommendation System")
     
-    st.markdown("<h1 style='text-align: center;'>🎬 Anime Recommendation System</h1>", unsafe_allow_html=True)
-    st.markdown("<p style='text-align: center;'>Find similar anime based on your favorite one!</p>", unsafe_allow_html=True)
-    
-    anime_name_input = st.text_input("Enter an anime name:", placeholder="e.g., Naruto")
+    anime_name_input = st.text_input("Enter an anime name:")
 
-    if st.button("Get Recommendations", use_container_width=True):
-        if not anime_name_input:
-            st.warning("⚠️ Please enter an anime name.")
-            return
-        
-        with st.spinner("🔍 Searching for recommendations..."):
+    if st.button("Get Recommendations"):
+        try:
+            if not anime_name_input:
+                st.warning("⚠️ Please enter an anime name.")
+                return
+            
+            st.write(f"🔍 Looking for recommendations for: {anime_name_input}")
+
             result = get_recommendations_by_name(anime_name_input)
 
-        if isinstance(result, tuple):
-            anime_title, recommendations = result
-            st.subheader(f"🎯 Recommendations for: **{anime_title}**")
-            st.dataframe(recommendations)
-        else:
-            st.error(result)
+            if isinstance(result, tuple):
+                anime_title, recommendations = result
+                st.subheader(f"Recommendations for: {anime_title}")
+                st.dataframe(recommendations)
+            else:
+                st.error(result)
+        
+        except Exception as e:
+            st.error(f"⚠️ Full Error: {repr(e)}")
+            print(f"❌ Full Error: {repr(e)}")
 
 # Run the app
 if __name__ == "__main__":
