@@ -52,9 +52,13 @@ def main():
     
     if st.button("Get Recommendations", use_container_width=True):
         if anime_name_input:
-            anime_title, recommendations = get_recommendations_by_name(anime_name_input)
-            st.subheader(f"Recommended Anime for: {anime_title}")
-            st.dataframe(recommendations)
+            result = get_recommendations_by_name(anime_name_input)
+            if isinstance(result, tuple):
+                anime_title, recommendations = result
+                st.subheader(f"Recommended Anime for: {anime_title}")
+                st.dataframe(recommendations)
+            else:
+                st.warning(result)
         else:
             st.warning("Please enter an anime name.")
 
