@@ -25,6 +25,7 @@ except Exception as e:
 file_url1 = "https://raw.githubusercontent.com/Munhboldn/Anime/main/users-score-part1.parquet"
 file_url2 = "https://raw.githubusercontent.com/Munhboldn/Anime/main/users-score-part2.parquet"
 
+
 try:
     user_rec1 = pd.read_parquet(file_url1)
     user_rec2 = pd.read_parquet(file_url2)
