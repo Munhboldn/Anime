@@ -26,7 +26,7 @@ st.markdown("""
     }
     .subheader {
         font-size: 1.5rem;
-        color: #4B4BFF;
+        color: #4B9BFF;
         margin-top: 2rem;
         margin-bottom: 1rem;
     }
@@ -34,10 +34,18 @@ st.markdown("""
         background-color: #FF4B4B;
     }
     .recommendation-box {
-        background-color: #f0f0f5;
+        background-color: rgba(70, 70, 90, 0.2);
         padding: 1.5rem;
         border-radius: 0.5rem;
         margin-bottom: 1rem;
+        border-left: 4px solid #4B9BFF;
+    }
+    .recommendation-title {
+        color: #FF4B4B;
+        margin-bottom: 0.5rem;
+    }
+    .recommendation-details {
+        color: rgba(255, 255, 255, 0.8);
     }
 </style>
 """, unsafe_allow_html=True)
@@ -255,9 +263,9 @@ if search_button or (anime_name_input and 'last_search' not in st.session_state)
                     with st.container():
                         st.markdown(f"""
                         <div class='recommendation-box'>
-                            <h3>{i+1}. {anime['Name']}</h3>
-                            <p><strong>Score:</strong> {anime['Score']}/10 | <strong>Type:</strong> {anime['Type']} | <strong>Episodes:</strong> {anime['Episodes']}</p>
-                            <p><strong>Genres:</strong> {', '.join(anime['Genres']) if isinstance(anime['Genres'], list) else anime['Genres']}</p>
+                            <h3 class='recommendation-title'>{i+1}. {anime['Name']}</h3>
+                            <p class='recommendation-details'><strong>Score:</strong> {anime['Score']}/10 | <strong>Type:</strong> {anime['Type']} | <strong>Episodes:</strong> {anime['Episodes']}</p>
+                            <p class='recommendation-details'><strong>Genres:</strong> {', '.join(anime['Genres']) if isinstance(anime['Genres'], list) else anime['Genres']}</p>
                         </div>
                         """, unsafe_allow_html=True)
             else:
@@ -269,7 +277,7 @@ if search_button or (anime_name_input and 'last_search' not in st.session_state)
 # Add footer
 st.divider()
 st.markdown("""
-<div style='text-align: center; color: gray; font-size: 0.8rem;'>
+<div style='text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 0.8rem;'>
     Anime Recommendation System | Built with Streamlit | Data source: MyAnimeList
 </div>
 """, unsafe_allow_html=True)
