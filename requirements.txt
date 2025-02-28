@@ -1,8 +1,7 @@
-streamlit==1.42.2
-pandas==2.2.3
-numpy==2.2.3
-scipy>=1.13.0
-scikit-learn==1.6.1
-fuzzywuzzy==0.18.0
-python-levenshtein==0.26.1
-gdown==5.2.0
+streamlit
+pandas
+numpy
+scipy
+scikit-learn
+fuzzywuzzy
+python-Levenshtein
