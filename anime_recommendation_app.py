@@ -8,20 +8,24 @@ import os
 import gdown
 from config import USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH
 
-# Download the large file if it doesn't exist
+# Debugging: Check if the file exists
 if not os.path.exists(USERS_SCORE_FILE_PATH):
+    st.write("Downloading file...")
     try:
         gdown.download(USERS_SCORE_FILE_URL, USERS_SCORE_FILE_PATH, quiet=False)
         st.success("File downloaded successfully!")
     except Exception as e:
         st.error(f"Failed to download the file: {e}")
         st.stop()
+else:
+    st.write("File already exists. Skipping download.")
 
 st.title("Anime Recommendation System")
 
 # Cache the anime dataset loading
 @st.cache_data
 def load_anime_data():
+    st.write("Loading anime data...")
     file_path = "anime-dataset-2023.csv"
     return pd.read_csv(
         file_path, 
@@ -35,7 +39,7 @@ def load_anime_data():
 # Cache the user ratings dataset loading and preprocessing
 @st.cache_data
 def load_user_data():
-    # Use the USERS_SCORE_FILE_PATH variable
+    st.write("Loading user data...")
     user_rec = pd.read_csv(USERS_SCORE_FILE_PATH, usecols=['anime_id', 'user_id', 'rating'])
     
     # Convert IDs to numeric and drop invalid rows
@@ -51,11 +55,13 @@ def load_user_data():
     popular_anime = user_rec.groupby('anime_id')['user_id'].count()
     user_rec = user_rec[user_rec['anime_id'].isin(popular_anime[popular_anime >= 20].index)]
     
+    st.write("User data loaded successfully!")
     return user_rec
 
 # Cache the similarity matrix computation
 @st.cache_resource
 def build_similarity_matrix(user_rec):
+    st.write("Building similarity matrix...")
     # Convert user and anime IDs to category codes for efficient memory usage
     user_rec['user_code'] = user_rec['user_id'].astype('category').cat.codes
     user_rec['anime_code'] = user_rec['anime_id'].astype('category').cat.codes
@@ -74,6 +80,7 @@ def build_similarity_matrix(user_rec):
         index=user_rec['anime_id'].astype('category').cat.categories,
         columns=user_rec['anime_id'].astype('category').cat.categories
     )
+    st.write("Similarity matrix built successfully!")
     return similarity_df
 
 # Load the datasets and build the similarity matrix
